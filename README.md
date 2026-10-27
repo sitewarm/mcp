@@ -52,6 +52,8 @@ One tool per operation in [`tools/allowlist.json`](tools/allowlist.json), named 
 
 - **Key.** Held in a `Secret` object: not in `JSON.stringify`, `util.inspect`, string interpolation or the config printed by a debugger. Never logged. Any occurrence of the key in tool output or error text is replaced by `[redacted]`, and an unexpected exception becomes a generic message.
 - **Timeout.** 30 s per call, covering the body read. A timeout that is zero, negative or not a number keeps the default.
+- **Non-JSON success.** A 2xx answer whose body is not JSON is a tool error that names the status (`The API answered HTTP 200 with a body that is not valid JSON.`) and never includes the body; 204 and an empty body are fine.
+- **User-Agent.** `sitewarm-mcp/<version> (+https://github.com/sitewarm/mcp)`.
 - **No retries.** One request per tool call, whatever the answer; the assistant decides whether to call again (write tools stay protected by their idempotency key). A broken or truncated response body is a clean tool error.
 - **Body limit.** At most 32 MiB is read; a larger body is cancelled and reported as an error.
 - **Pagination.** Lists return one page and the server never follows cursors itself, so there is no loop to cap. `limit` is checked before the request: an integer 1..100, or 0 or omitted for the server default.

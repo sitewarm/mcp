@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { inspect } from "node:util";
 import type { ToolDef } from "./spec.js";
+import { VERSION } from "./version.js";
 
 /** Holds the API key so that logging, JSON.stringify, string interpolation or util.inspect of a config never shows it. */
 export class Secret {
@@ -24,6 +25,7 @@ export class Secret {
 
 export const MAX_BODY_BYTES = 32 * 1024 * 1024;
 const DEFAULT_TIMEOUT_MS = 30_000;
+export const USER_AGENT = `sitewarm-mcp/${VERSION} (+https://github.com/sitewarm/mcp)`;
 
 export interface Config {
   baseUrl: string;
@@ -181,7 +183,7 @@ async function run(tool: ToolDef, rawArgs: unknown, cfg: Config, fetchImpl: type
   const headers: Record<string, string> = {
     Authorization: `Bearer ${keyOf(cfg)}`,
     Accept: "application/json, application/problem+json",
-    "User-Agent": "sitewarm-mcp",
+    "User-Agent": USER_AGENT,
   };
   let body: string | undefined;
   if (tool.hasBody && args.body !== undefined) {
@@ -225,12 +227,16 @@ async function run(tool: ToolDef, rawArgs: unknown, cfg: Config, fetchImpl: type
     );
   }
   let json: unknown;
+  let parsed = true;
   try {
-    json = text ? JSON.parse(text) : undefined;
+    json = text.trim() ? JSON.parse(text) : undefined;
   } catch {
     json = undefined;
+    parsed = false;
   }
   if (res.ok) {
+    // A 2xx body that is not JSON (an HTML page from a proxy, say) is an error that names the status, never the body.
+    if (!parsed && res.status !== 204) return fail(`The API answered HTTP ${res.status} with a body that is not valid JSON.`);
     const out = json === undefined ? (text || "OK") : JSON.stringify(json, null, 2);
     return { isError: false, text: out };
   }
