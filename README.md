@@ -46,7 +46,16 @@ One tool per operation in [`tools/allowlist.json`](tools/allowlist.json), named 
 - **They consume quota and send real traffic.** `trigger_warm_run` and every scheduled run request URLs on your site and its CDN and count against your plan's warm-request quota. Cancelling does not refund requests already sent.
 - **Explicit confirmation.** Every write tool requires `confirm: true`. Without it the call is refused before any request is made, and the message tells the assistant to ask you first. Tool annotations mark them as not read-only (`delete_schedule` as destructive) so clients can prompt.
 - **Idempotency.** `trigger_warm_run` takes an `idempotency_key`. If the assistant omits it, a key derived from the arguments is used for 10 minutes, so an accidental repeat does not start a second run.
-- **No redirects, no passthrough.** The key goes only to `SITEWARM_API_URL`; redirects are refused. Error text comes from the API's RFC 9457 problem (`title`, `detail`, `code`, `action`, `Retry-After`), never from the request.
+- **No redirects, no passthrough.** The key goes only to `SITEWARM_API_URL`; requests are made with `redirect: "error"`, and an answer that still came from a redirect (a redirect status, `redirected`, or a different origin) is refused. Error text comes from the API's RFC 9457 problem (`title`, `detail`, `code`, `action`, `Retry-After`), never from the request.
+
+### Behavior
+
+- **Key.** Held in a `Secret` object: not in `JSON.stringify`, `util.inspect`, string interpolation or the config printed by a debugger. Never logged. Any occurrence of the key in tool output or error text is replaced by `[redacted]`, and an unexpected exception becomes a generic message.
+- **Timeout.** 30 s per call, covering the body read. A timeout that is zero, negative or not a number keeps the default.
+- **No retries.** One request per tool call, whatever the answer; the assistant decides whether to call again (write tools stay protected by their idempotency key). A broken or truncated response body is a clean tool error.
+- **Body limit.** At most 32 MiB is read; a larger body is cancelled and reported as an error.
+- **Pagination.** Lists return one page and the server never follows cursors itself, so there is no loop to cap. `limit` is checked before the request: an integer 1..100, or 0 or omitted for the server default.
+- **Redirects.** `fetch` is called with `redirect: "error"`. The Authorization header cannot be removed from a `fetch` you inject (tests and embedding only): such a function must not follow redirects, and its answer is refused if it did.
 
 ## Development
 
