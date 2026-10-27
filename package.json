@@ -1,0 +1,28 @@
+{
+  "name": "@sitewarm/mcp",
+  "version": "0.1.0",
+  "description": "MCP server (stdio) for the sitewarm API: read tools and opt-in, confirmed write tools",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "git+https://github.com/sitewarm/mcp.git" },
+  "homepage": "https://github.com/sitewarm/mcp",
+  "bugs": { "url": "https://github.com/sitewarm/mcp/issues" },
+  "bin": { "sitewarm-mcp": "dist/index.js" },
+  "files": ["dist", "openapi", "tools", "LICENSE", "README.md"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "5.9.3",
+    "vitest": "5.0.5"
+  }
+}

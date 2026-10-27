@@ -1,0 +1,73 @@
+{
+  "listSites": {
+    "tool": "list_sites",
+    "kind": "read",
+    "description": "List the sites of your organization with their verification status. Returns one page; pass page.next_cursor back as cursor for the next page."
+  },
+  "getSite": {
+    "tool": "get_site",
+    "kind": "read",
+    "description": "Get one site: hostname, verification status and settings."
+  },
+  "listWarmRuns": {
+    "tool": "list_warm_runs",
+    "kind": "read",
+    "description": "List the warm runs of a site, newest first. Returns one page; pass page.next_cursor back as cursor."
+  },
+  "getWarmRun": {
+    "tool": "get_warm_run",
+    "kind": "read",
+    "description": "Get one warm run: status, timing, counts per cache state, the fail-on list that was applied and the verdict. Start here, then use list_warm_run_results filtered to a state for details."
+  },
+  "listWarmRunResults": {
+    "tool": "list_warm_run_results",
+    "kind": "read",
+    "description": "List the per-URL results of a warm run. Filter by state to keep the answer small. Returns one page; pass page.next_cursor back as cursor."
+  },
+  "listCacheStatusReports": {
+    "tool": "list_cache_status_reports",
+    "kind": "read",
+    "description": "List the cache status reports of a site, newest first."
+  },
+  "getCacheStatusReport": {
+    "tool": "get_cache_status_report",
+    "kind": "read",
+    "description": "Get one cache status report. A hit is verified only at the vantage point that made the request."
+  },
+  "listSchedules": {
+    "tool": "list_schedules",
+    "kind": "read",
+    "description": "List the warm schedules of a site."
+  },
+  "getSchedule": {
+    "tool": "get_schedule",
+    "kind": "read",
+    "description": "Get one warm schedule."
+  },
+  "createWarmRun": {
+    "tool": "trigger_warm_run",
+    "kind": "write",
+    "description": "WRITE: start a warm run for a verified site. This sends real requests to the site's origin and CDN and consumes warm-request quota of your plan. Repeating the call with the same idempotency_key does not start a second run. The call returns at once; poll get_warm_run for the result."
+  },
+  "cancelWarmRun": {
+    "tool": "cancel_warm_run",
+    "kind": "write",
+    "description": "WRITE: ask a running warm run to stop. Cancelling is asynchronous; poll get_warm_run. Requests already sent still count against quota."
+  },
+  "createSchedule": {
+    "tool": "create_schedule",
+    "kind": "write",
+    "description": "WRITE: create a recurring warm schedule for a site. Every scheduled run sends real requests to the site and consumes quota."
+  },
+  "updateSchedule": {
+    "tool": "update_schedule",
+    "kind": "write",
+    "description": "WRITE: change a warm schedule (cadence, options, enabled flag). Future runs use the new values and consume quota."
+  },
+  "deleteSchedule": {
+    "tool": "delete_schedule",
+    "kind": "write",
+    "destructive": true,
+    "description": "WRITE: delete a warm schedule. This cannot be undone."
+  }
+}
